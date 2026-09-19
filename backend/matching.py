@@ -1,168 +1,148 @@
-"""Explainable skill matching — no ML model.
-
-Match % = (shared skills / required skills) * 100
-"""
-
-LEARNING_CATALOG = {
-    "python": {
-        "title": "Python Essentials",
-        "provider": "NPTEL / freeCodeCamp",
-        "hours": 20,
-        "link": "https://www.freecodecamp.org/learn/scientific-computing-with-python/",
-    },
-    "java": {
-        "title": "Java Programming",
-        "provider": "NPTEL",
-        "hours": 24,
-        "link": "https://onlinecourses.nptel.ac.in/",
-    },
-    "javascript": {
-        "title": "JavaScript Algorithms",
-        "provider": "freeCodeCamp",
-        "hours": 18,
-        "link": "https://www.freecodecamp.org/learn/javascript-algorithms-and-data-structures/",
-    },
-    "react": {
-        "title": "React — Official Tutorial",
-        "provider": "react.dev",
-        "hours": 12,
-        "link": "https://react.dev/learn",
-    },
-    "sql": {
-        "title": "SQL for Beginners",
-        "provider": "Mode Analytics",
-        "hours": 10,
-        "link": "https://mode.com/sql-tutorial/",
-    },
-    "mysql": {
-        "title": "MySQL Crash Course",
-        "provider": "MySQL Docs",
-        "hours": 8,
-        "link": "https://dev.mysql.com/doc/",
-    },
-    "flask": {
-        "title": "Flask Mega-Tutorial (intro)",
-        "provider": "Flask Docs",
-        "hours": 10,
-        "link": "https://flask.palletsprojects.com/",
-    },
-    "machine learning": {
-        "title": "Intro to Machine Learning",
-        "provider": "Kaggle",
-        "hours": 16,
-        "link": "https://www.kaggle.com/learn/intro-to-machine-learning",
-    },
-    "data analysis": {
-        "title": "Pandas Data Analysis",
-        "provider": "Kaggle",
-        "hours": 8,
-        "link": "https://www.kaggle.com/learn/pandas",
-    },
-    "communication": {
-        "title": "Workplace Communication",
-        "provider": "Coursera (audit)",
-        "hours": 6,
-        "link": "https://www.coursera.org/",
-    },
-    "git": {
-        "title": "Git & GitHub",
-        "provider": "GitHub Skills",
-        "hours": 4,
-        "link": "https://skills.github.com/",
-    },
-    "ui/ux": {
-        "title": "UI Design Foundations",
-        "provider": "Figma Learn",
-        "hours": 8,
-        "link": "https://www.figma.com/resource-library/",
-    },
-    "aws": {
-        "title": "AWS Cloud Practitioner Essentials",
-        "provider": "AWS Skill Builder",
-        "hours": 12,
-        "link": "https://skillbuilder.aws/",
-    },
-    "excel": {
-        "title": "Excel for Data",
-        "provider": "Microsoft Learn",
-        "hours": 6,
-        "link": "https://learn.microsoft.com/excel/",
-    },
-}
+"""Explainable skill-match scoring. No ML — set overlap only."""
 
 
-def normalize_skill(name):
-    return (name or "").strip().lower()
+def normalize(skill):
+    return (skill or "").strip().lower()
 
 
-def unique_normalized(skills):
-    seen = []
-    used = set()
-    for skill in skills or []:
-        key = normalize_skill(skill)
-        if key and key not in used:
-            used.add(key)
-            seen.append(key)
-    return seen
+def unique_keep_order(items):
+    seen = set()
+    out = []
+    for item in items or []:
+        key = normalize(item)
+        if not key or key in seen:
+            continue
+        seen.add(key)
+        out.append(item.strip())
+    return out
 
 
-def match_skills(student_skills, required_skills):
-    student = set(unique_normalized(student_skills))
-    required = unique_normalized(required_skills)
+def skill_match(student_skills, required_skills):
+    student_list = unique_keep_order(student_skills or [])
+    required_list = unique_keep_order(required_skills or [])
+    student_set = {normalize(s) for s in student_list}
 
-    if not required:
-        return {
-            "match_percent": 100.0,
-            "matched_skills": sorted(student),
-            "missing_skills": [],
-            "extra_skills": sorted(student),
-            "required_count": 0,
-            "matched_count": 0,
-            "explanation": "This opportunity lists no required skills, so match is 100%.",
-        }
+    matched = [s for s in required_list if normalize(s) in student_set]
+    missing = [s for s in required_list if normalize(s) not in student_set]
+    extra = [s for s in student_list if normalize(s) not in {normalize(r) for r in required_list}]
 
-    matched = sorted(student.intersection(required))
-    missing = [skill for skill in required if skill not in student]
-    extra = sorted(student.difference(required))
-    percent = round(100.0 * len(matched) / len(required), 1)
+    total = len(required_list)
+    percent = round(100 * len(matched) / total) if total else 0
 
-    parts = [
-        f"Matched {len(matched)} of {len(required)} required skills ({percent}%)."
-    ]
-    if matched:
-        parts.append("Matched: " + ", ".join(matched) + ".")
+    if total == 0:
+        explanation = "This opportunity has no required skills listed, so match is shown as 0%."
+    elif not matched:
+        explanation = (
+            f"0 of {total} required skills match. Missing: {', '.join(missing)}."
+        )
+    elif not missing:
+        explanation = f"All {total} required skills match: {', '.join(matched)}."
     else:
-        parts.append("No overlapping skills yet.")
-    if missing:
-        parts.append("Skill gaps: " + ", ".join(missing) + ".")
-    else:
-        parts.append("No skill gaps.")
+        explanation = (
+            f"{len(matched)} of {total} required skills match "
+            f"({', '.join(matched)}). Gap: {', '.join(missing)}."
+        )
 
     return {
         "match_percent": percent,
         "matched_skills": matched,
         "missing_skills": missing,
         "extra_skills": extra,
-        "required_count": len(required),
+        "required_count": total,
         "matched_count": len(matched),
-        "explanation": " ".join(parts),
+        "explanation": explanation,
     }
 
 
-def recommend_learning(missing_skills):
+# Aliases for compatibility
+match_skills = skill_match
+
+
+LEARNING_CATALOG = {
+    "python": {
+        "title": "Python for Everybody",
+        "provider": "Coursera",
+        "url": "https://www.coursera.org/specializations/python",
+    },
+    "javascript": {
+        "title": "JavaScript Basics",
+        "provider": "MDN",
+        "url": "https://developer.mozilla.org/en-US/docs/Learn/JavaScript",
+    },
+    "react": {
+        "title": "React Quick Start",
+        "provider": "React.dev",
+        "url": "https://react.dev/learn",
+    },
+    "sql": {
+        "title": "Intro to SQL",
+        "provider": "Khan Academy",
+        "url": "https://www.khanacademy.org/computing/computer-programming/sql",
+    },
+    "mysql": {
+        "title": "MySQL Getting Started",
+        "provider": "MySQL Docs",
+        "url": "https://dev.mysql.com/doc/mysql-getting-started/en/",
+    },
+    "flask": {
+        "title": "Flask Mega-Tutorial",
+        "provider": "Miguel Grinberg",
+        "url": "https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-i-hello-world",
+    },
+    "docker": {
+        "title": "Docker Get Started",
+        "provider": "Docker",
+        "url": "https://docs.docker.com/get-started/",
+    },
+    "aws": {
+        "title": "AWS Cloud Practitioner Essentials",
+        "provider": "AWS Skill Builder",
+        "url": "https://skillbuilder.aws/",
+    },
+    "java": {
+        "title": "Java Programming",
+        "provider": "Oracle",
+        "url": "https://dev.java/learn/",
+    },
+    "data analysis": {
+        "title": "Data Analysis with Python",
+        "provider": "freeCodeCamp",
+        "url": "https://www.freecodecamp.org/learn/data-analysis-with-python/",
+    },
+    "machine learning": {
+        "title": "Machine Learning Crash Course",
+        "provider": "Google",
+        "url": "https://developers.google.com/machine-learning/crash-course",
+    },
+    "communication": {
+        "title": "Technical Communication",
+        "provider": "Coursera",
+        "url": "https://www.coursera.org/learn/technical-communication",
+    },
+    "git": {
+        "title": "Git Handbook",
+        "provider": "GitHub",
+        "url": "https://guides.github.com/introduction/git-handbook/",
+    },
+    "node.js": {
+        "title": "Node.js Guides",
+        "provider": "nodejs.org",
+        "url": "https://nodejs.org/en/learn",
+    },
+}
+
+
+def learning_for(missing_skills):
     recs = []
-    for skill in unique_normalized(missing_skills):
-        course = LEARNING_CATALOG.get(skill)
-        if course:
-            recs.append({"skill": skill, **course})
-        else:
-            recs.append(
-                {
-                    "skill": skill,
-                    "title": f"Learn {skill.title()}",
-                    "provider": "YouTube / NPTEL search",
-                    "hours": 8,
-                    "link": f"https://www.google.com/search?q={skill}+nptel+course",
-                }
-            )
+    for skill in unique_keep_order(missing_skills or []):
+        item = LEARNING_CATALOG.get(normalize(skill), {
+            "title": f"Learn {skill}",
+            "provider": "Search",
+            "url": f"https://www.google.com/search?q=learn+{skill.replace(' ', '+')}+course",
+        })
+        recs.append({"skill": skill, **item})
     return recs
+
+
+# Aliases for compatibility
+recommend_learning = learning_for
