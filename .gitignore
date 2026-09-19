@@ -1,15 +1,35 @@
 # Environment variables
 .env
+.env.*
+.env.local
+.env.*.local
+backend/.env
+frontend/.env
+!.env.example
+!.env.example.txt
+!backend/.env.example
+!frontend/.env.example
+
+# Databases
+*.db
+*.sqlite
+*.sqlite3
+backend/aicp.db
 
 # Node
 node_modules/
 npm-debug.log*
+.vite/
 
 # Python
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
 .venv/
 venv/
+env/
+ENV/
 
 # Build files
 dist/
@@ -18,6 +38,8 @@ build/
 # IDE
 .vscode/
 .idea/
+*.swp
+*.swo
 
 # OS
 .DS_Store
