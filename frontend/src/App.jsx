@@ -7,6 +7,9 @@ import StudentDashboard from "./pages/student/StudentDashboard.jsx";
 import StudentProfile from "./pages/student/StudentProfile.jsx";
 import OpportunityDetail from "./pages/student/OpportunityDetail.jsx";
 import StudentApplications from "./pages/student/StudentApplications.jsx";
+import StudentSkills from "./pages/student/StudentSkills.jsx";
+import StudentOpportunities from "./pages/student/StudentOpportunities.jsx";
+import StudentSkillGap from "./pages/student/StudentSkillGap.jsx";
 import CompanyLayout from "./pages/company/CompanyLayout.jsx";
 import CompanyDashboard from "./pages/company/CompanyDashboard.jsx";
 import PostOpportunity from "./pages/company/PostOpportunity.jsx";
@@ -46,8 +49,11 @@ export default function App() {
       >
         <Route index element={<StudentDashboard />} />
         <Route path="profile" element={<StudentProfile />} />
-        <Route path="applications" element={<StudentApplications />} />
+        <Route path="skills" element={<StudentSkills />} />
+        <Route path="opportunities" element={<StudentOpportunities />} />
         <Route path="opportunities/:id" element={<OpportunityDetail />} />
+        <Route path="skill-gap" element={<StudentSkillGap />} />
+        <Route path="applications" element={<StudentApplications />} />
       </Route>
 
       <Route

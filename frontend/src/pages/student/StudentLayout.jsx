@@ -50,6 +50,12 @@ export default function StudentLayout() {
     if (link.view === "opportunities" && (view === "opportunities" || location.pathname.startsWith("/student/opportunities"))) {
       return true;
     }
+    if (link.view === "skills" && (view === "skills" || location.pathname === "/student/skills")) {
+      return true;
+    }
+    if (link.view === "skill-gap" && (view === "skill-gap" || location.pathname === "/student/skill-gap")) {
+      return true;
+    }
     if (link.view) return location.pathname.startsWith("/student") && view === link.view;
     if (link.to === "/student") {
       return (location.pathname === "/student" || location.pathname === "/student/") && !view;

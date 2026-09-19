@@ -81,7 +81,7 @@ class Application(db.Model):
 
 def database_uri():
     if os.getenv("USE_SQLITE", "1") == "1":
-        path = os.path.join(os.path.dirname(__file__), "aicp.db")
+        path = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "aicp.db"))
         return "sqlite:///" + path.replace("\\", "/")
     user = os.getenv("MYSQL_USER", "root")
     password = os.getenv("MYSQL_PASSWORD", "")
