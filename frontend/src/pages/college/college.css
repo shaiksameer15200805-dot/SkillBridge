@@ -1,0 +1,17 @@
+.college-page{padding:28px;min-height:100vh;background:#f6f8fc;color:#142033}
+.college-header{display:flex;justify-content:space-between;align-items:end;margin-bottom:22px}
+.college-header small{font-size:10px;letter-spacing:1.2px;color:#7d899c}
+.college-header h1{margin:5px 0 0;font-size:28px}
+.college-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin-bottom:18px}
+.college-card,.college-panel{background:#fff;border:1px solid #e5e9f0;border-radius:16px;padding:20px;box-shadow:0 8px 25px rgba(20,32,51,.06)}
+.college-card span{display:block;color:#77859a;font-size:12px}.college-card strong{display:block;font-size:28px;margin-top:8px}
+.college-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.college-panel h2{font-size:16px;margin-top:0}.metric-row,.bar-label{display:flex;justify-content:space-between;gap:15px;padding:10px 0;border-bottom:1px solid #edf0f4;font-size:13px}
+.college-filters{display:flex;gap:10px;margin-bottom:15px}.college-filters input,.college-filters select{padding:11px 13px;border:1px solid #dce3ed;border-radius:10px;background:#fff}
+.table-wrap{overflow:auto}.table-wrap table{width:100%;border-collapse:collapse}.table-wrap th,.table-wrap td{text-align:left;padding:13px;border-bottom:1px solid #edf0f4;font-size:13px}.table-wrap th{font-size:10px;text-transform:uppercase;color:#7d8999}
+.bar-item{margin:12px 0}.bar-track{height:7px;background:#edf0f5;border-radius:10px;overflow:hidden}.bar-track i{display:block;height:100%;background:#5b5cf0;border-radius:10px}
+.college-nav{display:flex;gap:12px;margin-bottom:20px}
+.college-nav a{padding:8px 16px;border-radius:8px;text-decoration:none;font-size:14px;color:#4a5568;background:#edf2f7;transition:all .2s}
+.college-nav a.active,.college-nav a:hover{background:#5b5cf0;color:#fff}
+@media(max-width:900px){.college-cards{grid-template-columns:1fr 1fr}.college-grid{grid-template-columns:1fr}}
+@media(max-width:600px){.college-cards{grid-template-columns:1fr}.college-filters{flex-direction:column}}

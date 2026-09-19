@@ -16,6 +16,9 @@ import PostOpportunity from "./pages/company/PostOpportunity.jsx";
 import Applicants from "./pages/company/Applicants.jsx";
 import CollegeLayout from "./pages/college/CollegeLayout.jsx";
 import CollegeDashboard from "./pages/college/CollegeDashboard.jsx";
+import CollegeStudents from "./pages/college/CollegeStudents.jsx";
+import CollegeSkillGaps from "./pages/college/CollegeSkillGaps.jsx";
+import CollegeAnalytics from "./pages/college/CollegeAnalytics.jsx";
 
 function Guard({ role, children }) {
   const user = getUser();
@@ -78,6 +81,9 @@ export default function App() {
         }
       >
         <Route index element={<CollegeDashboard />} />
+        <Route path="students" element={<CollegeStudents />} />
+        <Route path="skill-gaps" element={<CollegeSkillGaps />} />
+        <Route path="analytics" element={<CollegeAnalytics />} />
       </Route>
     </Routes>
   );

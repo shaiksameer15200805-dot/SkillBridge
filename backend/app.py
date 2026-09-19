@@ -911,38 +911,6 @@ def register_routes(app):
             },
         })
 
-    @app.get("/api/college/students")
-    def college_students():
-        user = require_role("college")
-        if not user:
-            return jsonify({"error": "Unauthorized"}), 401
-        admin = CollegeAdmin.query.filter_by(user_id=user.id).first()
-        college = admin.college if admin else College.query.first()
-        students = Student.query.filter_by(college_id=college.id).all() if college else Student.query.all()
-        return jsonify([student_public(s) for s in students])
-
-    @app.get("/api/college/skill-gaps")
-    def college_skill_gaps():
-        user = require_role("college")
-        if not user:
-            return jsonify({"error": "Unauthorized"}), 401
-        admin = CollegeAdmin.query.filter_by(user_id=user.id).first()
-        college = admin.college if admin else College.query.first()
-        students = Student.query.filter_by(college_id=college.id).all() if college else Student.query.all()
-        opps = Opportunity.query.all()
-        gap_counter = {}
-        for student in students:
-            skills = skills_of_student(student)
-            for opp in opps:
-                m = skill_match(skills, skills_of_opp(opp))
-                for s in m["missing_skills"]:
-                    gap_counter[s] = gap_counter.get(s, 0) + 1
-        skill_gaps = sorted(gap_counter.items(), key=lambda kv: kv[1], reverse=True)[:10]
-        return jsonify({
-            "skill_gaps": [{"skill": name, "student_opportunity_gaps": count} for name, count in skill_gaps],
-            "recommended_learning": learning_for([name for name, _ in skill_gaps]),
-        })
-
     @app.get("/api/college/opportunities")
     def college_opportunities():
         user = require_role("college")
@@ -951,17 +919,29 @@ def register_routes(app):
         opps = Opportunity.query.all()
         return jsonify([opportunity_public(opp) for opp in opps])
 
-    @app.get("/api/college/analytics")
-    def college_analytics():
-        return college_dashboard()
-
 
 def create_app():
     app = Flask(__name__)
     app.config["SQLALCHEMY_DATABASE_URI"] = database_uri()
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    app.config["JWT_SECRET"] = JWT_SECRET
     CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
     db.init_app(app)
+
+    from services.db_adapter import SQLAlchemySkillBridgeDB
+    app.config["SKILLBRIDGE_DB"] = SQLAlchemySkillBridgeDB(models={
+        "Student": Student,
+        "Opportunity": Opportunity,
+        "Application": Application,
+        "StudentSkill": StudentSkill,
+        "OpportunitySkill": OpportunitySkill,
+        "User": User,
+        "College": College,
+        "student_public": student_public,
+    })
+
+    from routes.college import college_bp
+    app.register_blueprint(college_bp)
 
     @app.errorhandler(400)
     def handle_bad_request(e):
